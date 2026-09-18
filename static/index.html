@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Travel Planner</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #222; }
+  h1 { text-align: center; }
+  label { display: block; margin-top: 12px; font-weight: bold; }
+  input { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; }
+  button { margin-top: 20px; padding: 12px 24px; font-size: 16px; cursor: pointer; }
+  #loading { display: none; margin-top: 20px; font-style: italic; }
+
+  /* Styling for the rendered itinerary */
+  #result {
+    margin-top: 30px;
+    background: #fafafa;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    line-height: 1.5;
+  }
+  #result h1, #result h2, #result h3 {
+    margin-top: 24px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 6px;
+  }
+  #result table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  #result th, #result td {
+    border: 1px solid #ccc;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  #result th {
+    background: #f0f0f0;
+  }
+  #result tr:nth-child(even) {
+    background: #f9f9f9;
+  }
+  #result code {
+    background: #eee;
+    padding: 2px 5px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<h1>🧳 AI Travel Planner</h1>
+
+<label>Origin</label>
+<input type="text" id="origin" placeholder="e.g. Kannur">
+
+<label>Destination</label>
+<input type="text" id="destination" placeholder="e.g. Tokyo">
+
+<label>Dates</label>
+<input type="text" id="dates" placeholder="e.g. Oct 10-17">
+
+<label>Budget</label>
+<input type="text" id="budget" placeholder="e.g. 50000 INR">
+
+<label>Preferences</label>
+<input type="text" id="preferences" placeholder="e.g. food, culture, nightlife">
+
+<button onclick="planTrip()">Plan My Trip</button>
+
+<div id="loading">Planning your trip... this can take 20-40 seconds ⏳</div>
+<div id="result"></div>
+
+<script>
+async function planTrip() {
+  const payload = {
+    origin: document.getElementById("origin").value,
+    destination: document.getElementById("destination").value,
+    dates: document.getElementById("dates").value,
+    budget: document.getElementById("budget").value,
+    preferences: document.getElementById("preferences").value,
+  };
+
+  document.getElementById("loading").style.display = "block";
+  document.getElementById("result").innerHTML = "";
+
+  try {
+    const response = await fetch("/plan-trip", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json();
+    // Convert the markdown itinerary into styled HTML
+    document.getElementById("result").innerHTML = marked.parse(data.itinerary);
+  } catch (err) {
+    document.getElementById("result").textContent = "Error: " + err;
+  } finally {
+    document.getElementById("loading").style.display = "none";
+  }
+}
+</script>
+
+</body>
+</html>
